@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YWC Phase 1: The Inner Audit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --text-color: #2d3436;
+            --accent-color: #636e72;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.5s ease;
+        }
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        .audit-input {
+            background: transparent;
+            border-bottom: 1px solid var(--accent-color);
+            width: 100%;
+            padding: 8px 0;
+            margin-bottom: 1.5rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .audit-input:focus {
+            border-bottom: 2px solid #000;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+        }
+        .sparkle-btn {
+            @apply flex items-center justify-center gap-2 px-4 py-2 bg-black text-white rounded-full text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-all disabled:opacity-50;
+        }
+        @media print {
+            .no-print { display: none; }
+            body { background: white !important; color: black !important; }
+            .card { background: transparent; border: 1px solid #eee; }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 2px solid #fff;
+            width: 14px;
+            height: 14px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <!-- Design Controls -->
+    <div class="no-print fixed top-4 right-4 flex gap-2 bg-white/80 p-2 rounded-full shadow-lg z-50 items-center">
+        <button onclick="changeColor('#fdfbf7')" class="w-6 h-6 rounded-full border border-gray-300" style="background: #fdfbf7;"></button>
+        <button onclick="changeColor('#f0f4f1')" class="w-6 h-6 rounded-full border border-gray-300" style="background: #f0f4f1;"></button>
+        <button onclick="changeColor('#eef2f7')" class="w-6 h-6 rounded-full border border-gray-300" style="background: #eef2f7;"></button>
+        <button onclick="window.print()" class="ml-2 text-xs font-bold uppercase tracking-widest">Download PDF</button>
+    </div>
+
+    <div class="max-w-2xl mx-auto space-y-12 pb-32">
+        <!-- Header Section -->
+        <header class="text-center space-y-4">
+            <p class="text-xs uppercase tracking-[0.2em] font-semibold text-gray-500">Your Wellness Counter (YWC) 2026</p>
+            <h1 class="text-4xl md:text-5xl">The Inner Audit</h1>
+            <p class="italic text-gray-600">Phase 1: Under Pressure — Understanding the Inner Load</p>
+        </header>
+
+        <!-- Mission & Disclaimer Card -->
+        <section class="card p-6 border border-black/5 text-sm space-y-4">
+            <div>
+                <h3 class="font-bold text-lg mb-1">Our Mission</h3>
+                <p>YWC is a student-led wellness platform bridging psychology and daily living. Today is about moving from self-blame to self-observation.</p>
+            </div>
+            <div class="bg-black/5 p-4 rounded text-xs leading-relaxed italic">
+                <strong>Safety Disclaimer:</strong> This audit is for self-reflection and is not a clinical substitute for therapy. This is a private workbook for your eyes only. If you feel overwhelmed, please stop and prioritize your safety.
+            </div>
+        </section>
+
+        <!-- Audit Questions -->
+        <div class="space-y-16 py-8">
+            
+            <!-- Section 1 -->
+            <section id="section-1">
+                <h2 class="text-2xl mb-6">1. The Mirror <span class="text-sm font-light italic block text-gray-500">Current Capacity</span></h2>
+                <label class="block text-sm font-semibold mb-2">The Mask</label>
+                <p class="text-sm text-gray-600 mb-4">If I stopped "performing" success or stability for 24 hours, what is the very first thing my body or mind would demand?</p>
+                <input type="text" id="input-mask" class="audit-input" placeholder="Write your thoughts here...">
+
+                <label class="block text-sm font-semibold mb-2">The Invisible List</label>
+                <p class="text-sm text-gray-600 mb-4">What are three things currently on my "plate" that I didn't actually choose for myself, but I feel obligated to carry?</p>
+                <input type="text" id="input-plate-1" class="audit-input" placeholder="1.">
+                <input type="text" id="input-plate-2" class="audit-input" placeholder="2.">
+                <input type="text" id="input-plate-3" class="audit-input" placeholder="3.">
+            </section>
+
+            <!-- AI Insight Trigger -->
+            <div class="flex justify-center no-print">
+                <button id="btn-analyze" onclick="getReflectiveInsight()" class="sparkle-btn">
+                    <span>✨ Get Reflective Insight</span>
+                </button>
+            </div>
+
+            <!-- AI Result Display -->
+            <div id="ai-insight-result" class="hidden card p-6 border border-black/10 text-sm italic leading-relaxed text-gray-700 animate-pulse">
+                <!-- Content injected here -->
+            </div>
+
+            <!-- Section 2 -->
+            <section>
+                <h2 class="text-2xl mb-6">2. The Body <span class="text-sm font-light italic block text-gray-500">Locating the Stress</span></h2>
+                <label class="block text-sm font-semibold mb-2">The Physical Alarm</label>
+                <p class="text-sm text-gray-600 mb-4">When I check my bank balance or look at my to-do list, where in my body do I feel it first?</p>
+                <input type="text" id="input-body" class="audit-input" placeholder="e.g., tight jaw, heavy chest...">
+
+                <label class="block text-sm font-semibold mb-2">The Low-Battery Signal</label>
+                <p class="text-sm text-gray-600 mb-4">What is my body’s specific "warning light" that tells me I have moved from "working hard" to "operating on empty"?</p>
+                <input type="text" id="input-warning" class="audit-input">
+            </section>
+
+            <!-- Section 3 -->
+            <section>
+                <h2 class="text-2xl mb-6">3. The Roots <span class="text-sm font-light italic block text-gray-500">The Survival Story</span></h2>
+                <label class="block text-sm font-semibold mb-2">The Family Script</label>
+                <p class="text-sm text-gray-600 mb-4">What is one unspoken rule about "duty" or "working hard" that I learned from my family?</p>
+                <input type="text" id="input-family" class="audit-input">
+
+                <label class="block text-sm font-semibold mb-2">The Survival Mode</label>
+                <p class="text-sm text-gray-600 mb-4">When the pressure in Nigeria gets too loud, what is my default survival mode?</p>
+                <div class="flex flex-wrap gap-4 mt-2">
+                    <label class="flex items-center space-x-2"><input type="radio" name="survival" value="avoid"> <span class="text-sm">Avoidance</span></label>
+                    <label class="flex items-center space-x-2"><input type="radio" name="survival" value="overperform"> <span class="text-sm">Over-performance</span></label>
+                    <label class="flex items-center space-x-2"><input type="radio" name="survival" value="distract"> <span class="text-sm">Instant Distraction</span></label>
+                </div>
+            </section>
+
+            <!-- Section 4 -->
+            <section>
+                <h2 class="text-2xl mb-6">4. The Internal Cost <span class="text-sm font-light italic block text-gray-500">The Decision Fog</span></h2>
+                <label class="block text-sm font-semibold mb-2">The Identity Tax</label>
+                <p class="text-sm text-gray-600 mb-4">How much of my stress is caused by trying to maintain an identity I can't actually afford—financially or emotionally?</p>
+                <input type="text" id="input-identity" class="audit-input">
+
+                <label class="block text-sm font-semibold mb-2">The Fog Check</label>
+                <p class="text-sm text-gray-600 mb-4">What is one choice I made recently that I know was driven by "exhaustion" rather than logic?</p>
+                <input type="text" id="input-fog" class="audit-input">
+            </section>
+
+            <!-- AI Financial Wisdom Trigger -->
+            <div class="no-print space-y-4">
+                <div class="flex justify-center">
+                    <button id="btn-wisdom" onclick="getFinancialNugget()" class="sparkle-btn">
+                        <span>✨ Get Financial Wisdom Nugget</span>
+                    </button>
+                </div>
+                <div id="ai-wisdom-result" class="hidden card p-6 border border-black/10 text-sm leading-relaxed text-gray-700 bg-black/5">
+                    <!-- Content injected here -->
+                </div>
+            </div>
+
+            <!-- Section 5 -->
+            <section class="card p-8 border-2 border-black/10">
+                <h2 class="text-2xl mb-6 underline decoration-1 underline-offset-8">5. The Reset</h2>
+                <label class="block text-sm font-semibold mb-2">The Small Boundary</label>
+                <p class="text-sm text-gray-600 mb-4">One "No" I can say this week to protect 10% of my capacity:</p>
+                <input type="text" id="input-boundary" class="audit-input">
+
+                <label class="block text-sm font-semibold mb-2">The Anchor</label>
+                <p class="text-sm text-gray-600 mb-4">Regulation technique to try when the load gets too heavy:</p>
+                <div class="flex gap-2 items-start">
+                    <input type="text" id="input-anchor" class="audit-input flex-grow" placeholder="e.g., Box breathing, grounding...">
+                    <button onclick="speakAnchor()" id="btn-tts" class="p-2 text-gray-500 hover:text-black no-print" title="Speak this anchor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- Footer / Socials -->
+        <footer class="pt-12 border-t border-black/10 space-y-8 pb-20">
+            <div class="space-y-4">
+                <h3 class="text-xl">What Comes Next?</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">
+                    By naming your "Inner Load" today, you have laid the foundation for <strong>Phase 2: Financial Patterns.</strong> 
+                    In February, we will explore how these survival modes show up in your spending and saving. 
+                    Keep these answers safe—they are the data for your future financial clarity.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <a href="#" class="text-xs font-bold uppercase tracking-widest hover:underline">X / Twitter</a>
+                <a href="#" class="text-xs font-bold uppercase tracking-widest hover:underline">Instagram</a>
+                <a href="#" class="text-xs font-bold uppercase tracking-widest hover:underline">Substack</a>
+                <a href="#" class="text-xs font-bold uppercase tracking-widest hover:underline">LinkedIn</a>
+            </div>
+
+            <p class="text-center text-[10px] text-gray-400 font-bold uppercase tracking-[0.3em]">
+                &copy; 2026 Chidiebere Onwubiko • YWC
+            </p>
+        </footer>
+    </div>
+
+    <!-- Message Box Overlay -->
+    <div id="msg-box" class="hidden fixed bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 bg-black text-white rounded-lg shadow-2xl text-sm z-[100] transition-all"></div>
+
+    <script>
+        const apiKey = ""; // Runtime will provide this
+
+        function changeColor(color) {
+            document.documentElement.style.setProperty('--bg-color', color);
+        }
+
+        function showMessage(msg, duration = 3000) {
+            const box = document.getElementById('msg-box');
+            box.textContent = msg;
+            box.classList.remove('hidden', 'opacity-0');
+            box.classList.add('opacity-100');
+            setTimeout(() => {
+                box.classList.add('opacity-0');
+                setTimeout(() => box.classList.add('hidden'), 500);
+            }, duration);
+        }
+
+        async function geminiCall(prompt, systemInstruction = "", useSearch = false) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+            if (useSearch) {
+                payload.tools = [{ "google_search": {} }];
+            }
+
+            let lastErr;
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error('API request failed');
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
+                } catch (err) {
+                    lastErr = err;
+                    await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
+                }
+            }
+            throw lastErr;
+        }
+
+        async function getReflectiveInsight() {
+            const mask = document.getElementById('input-mask').value;
+            const p1 = document.getElementById('input-plate-1').value;
+            const p2 = document.getElementById('input-plate-2').value;
+            const p3 = document.getElementById('input-plate-3').value;
+
+            if (!mask && !p1) {
+                showMessage("Please fill in some reflections first.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-analyze');
+            const resultBox = document.getElementById('ai-insight-result');
+            
+            btn.disabled = true;
+            btn.innerHTML = `<div class="spinner"></div> <span>Analyzing...</span>`;
+            resultBox.classList.remove('hidden');
+            resultBox.textContent = "✨ Tuning into your energy...";
+
+            try {
+                const systemPrompt = "You are a gentle, supportive clinical psychologist helping a young Nigerian student or professional. Your goal is to provide validation and a soft reflection on their 'Inner Load'. Keep it under 100 words. Be empathetic and non-judgmental.";
+                const userPrompt = `Based on these reflections: 
+                - Mask: ${mask}
+                - Invisible load on plate: ${p1}, ${p2}, ${p3}
+                Provide a small reflective nugget of insight. Help me decouple my worth from this productivity.`;
+                
+                const insight = await geminiCall(userPrompt, systemPrompt);
+                resultBox.classList.remove('animate-pulse');
+                resultBox.innerHTML = `<strong>✨ AI Reflection:</strong><br>${insight}`;
+            } catch (err) {
+                showMessage("Unable to connect to AI. Please try again later.");
+                resultBox.classList.add('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<span>✨ Get Reflective Insight</span>`;
+            }
+        }
+
+        async function getFinancialNugget() {
+            const btn = document.getElementById('btn-wisdom');
+            const resultBox = document.getElementById('ai-wisdom-result');
+
+            btn.disabled = true;
+            btn.innerHTML = `<div class="spinner"></div> <span>Searching context...</span>`;
+            resultBox.classList.remove('hidden');
+            resultBox.textContent = "✨ Researching current Nigerian economic context and tax reforms...";
+
+            try {
+                const systemPrompt = "You are a financial wellness expert knowledgeable about Nigeria's current economic climate and recent tax reforms (e.g., Finance Act 2024, VAT changes). Your advice should be practical, empathetic, and jargon-free for a young professional.";
+                const userPrompt = "Provide a short nugget of advice regarding the current Nigerian economic context or a recent tax reform that might affect a young person. Focus on helping them feel empowered rather than stressed.";
+                
+                const nugget = await geminiCall(userPrompt, systemPrompt, true);
+                resultBox.innerHTML = `<strong>✨ Financial Context:</strong><br>${nugget}`;
+            } catch (err) {
+                showMessage("Unable to fetch wisdom at this time.");
+                resultBox.classList.add('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<span>✨ Get Financial Wisdom Nugget</span>`;
+            }
+        }
+
+        async function speakAnchor() {
+            const anchor = document.getElementById('input-anchor').value;
+            if (!anchor) {
+                showMessage("Please write your Anchor technique first.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-tts');
+            const originalColor = btn.style.color;
+            btn.style.color = "blue";
+            showMessage("✨ Preparing voice guide...");
+
+            try {
+                const ttsUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+                const payload = {
+                    contents: [{ parts: [{ text: `Say calmly and supportively: "Remember your anchor: ${anchor}. Breathe into this space. You are more than what you carry."` }] }],
+                    generationConfig: { 
+                        responseModalities: ["AUDIO"], 
+                        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Aoede" } } } 
+                    }
+                };
+
+                const response = await fetch(ttsUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error('TTS failed');
+                const result = await response.json();
+                const audioData = result.candidates[0].content.parts[0].inlineData.data;
+                const sampleRate = parseInt(result.candidates[0].content.parts[0].inlineData.mimeType.match(/rate=(\d+)/)?.[1] || 24000);
+                
+                playPCM16(audioData, sampleRate);
+            } catch (err) {
+                showMessage("Voice service unavailable.");
+            } finally {
+                btn.style.color = originalColor;
+            }
+        }
+
+        // Helper to convert PCM16 to WAV and play
+        function playPCM16(base64Data, sampleRate) {
+            const binaryString = atob(base64Data);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+            
+            const wavHeader = new ArrayBuffer(44);
+            const view = new DataView(wavHeader);
+            
+            const writeString = (view, offset, string) => {
+                for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
+            };
+
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + bytes.length, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true); // PCM
+            view.setUint16(22, 1, true); // Mono
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, bytes.length, true);
+
+            const blob = new Blob([wavHeader, bytes], { type: 'audio/wav' });
+            const url = URL.createObjectURL(blob);
+            const audio = new Audio(url);
+            audio.play();
+        }
+    </script>
+</body>
+</html>
