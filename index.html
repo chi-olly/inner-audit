@@ -3,406 +3,571 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YWC Phase 1: The Inner Audit</title>
+    <title>SYNQ by Your Wellness Counter</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #fdfbf7;
-            --text-color: #2d3436;
-            --accent-color: #636e72;
-        }
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Inter', sans-serif;
-            transition: background-color 0.5s ease;
-        }
-        h1, h2, h3 {
-            font-family: 'Playfair Display', serif;
-        }
-        .audit-input {
-            background: transparent;
-            border-bottom: 1px solid var(--accent-color);
-            width: 100%;
-            padding: 8px 0;
-            margin-bottom: 1.5rem;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        .audit-input:focus {
-            border-bottom: 2px solid #000;
-        }
-        .card {
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-        }
-        .sparkle-btn {
-            @apply flex items-center justify-center gap-2 px-4 py-2 bg-black text-white rounded-full text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-all disabled:opacity-50;
-        }
-        @media print {
-            .no-print { display: none; }
-            body { background: white !important; color: black !important; }
-            .card { background: transparent; border: 1px solid #eee; }
+            --synq-teal-900: #0f4f56;
+            --synq-teal-700: #157a7f;
+            --synq-teal-500: #21a8a1;
+            --synq-teal-100: #d7f4ef;
+            --synq-coral: #ff8c6a;
+            --synq-sand: #fff4ec;
+            --synq-ink: #163038;
+            --synq-muted: #6a7c82;
+            --synq-bg: #f5fbfa;
+            --synq-card: rgba(255, 255, 255, 0.86);
         }
 
-        /* Loading Spinner */
-        .spinner {
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top: 2px solid #fff;
-            width: 14px;
-            height: 14px;
-            animation: spin 1s linear infinite;
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Nunito', sans-serif;
+            color: var(--synq-ink);
+            background:
+                radial-gradient(circle at top right, rgba(255, 140, 106, 0.20), transparent 26%),
+                radial-gradient(circle at top left, rgba(33, 168, 161, 0.20), transparent 32%),
+                linear-gradient(180deg, #f8fffe 0%, var(--synq-bg) 45%, #eef8f7 100%);
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        .app-shell {
+            max-width: 460px;
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 20px 16px 112px;
+            position: relative;
+        }
+
+        .glass-card {
+            background: var(--synq-card);
+            border: 1px solid rgba(21, 122, 127, 0.10);
+            box-shadow: 0 20px 40px rgba(15, 79, 86, 0.10);
+            backdrop-filter: blur(20px);
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(15, 79, 86, 0.97), rgba(33, 168, 161, 0.92) 58%, rgba(255, 140, 106, 0.78));
+        }
+
+        .pulse-line svg {
+            width: 100%;
+            height: 72px;
+            overflow: visible;
+        }
+
+        .pulse-line path {
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .nav-pill.active {
+            color: white;
+            background: linear-gradient(135deg, var(--synq-teal-700), var(--synq-teal-500));
+            box-shadow: 0 12px 20px rgba(21, 122, 127, 0.24);
+        }
+
+        .journal-line {
+            background-image: linear-gradient(to bottom, transparent calc(100% - 1px), rgba(21, 122, 127, 0.15) 1px);
+            background-size: 100% 40px;
+        }
+
+        .section-view { display: none; }
+        .section-view.active { display: block; }
+
+        .mood-chip.active {
+            border-color: transparent;
+            background: linear-gradient(135deg, rgba(33, 168, 161, 0.18), rgba(255, 140, 106, 0.24));
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(21, 122, 127, 0.10);
+        }
+
+        .habit-check.checked {
+            background: linear-gradient(135deg, var(--synq-teal-700), var(--synq-teal-500));
+            border-color: transparent;
+            color: white;
+        }
+
+        .progress-bar > span {
+            display: block;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--synq-teal-500), var(--synq-coral));
+        }
+
+        .slide-up {
+            animation: slideUp .35s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8">
+<body>
+    <main class="app-shell">
+        <header class="mb-6">
+            <div class="hero-gradient rounded-[28px] p-5 text-white shadow-2xl shadow-teal-900/20">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="h-12 w-12 rounded-2xl bg-white/15 p-2.5 backdrop-blur pulse-line">
+                            <svg viewBox="0 0 100 60" aria-label="SYNQ logo mark">
+                                <path d="M10 12 H40" stroke="rgba(255,255,255,0.65)" stroke-width="3"></path>
+                                <path d="M10 24 H34" stroke="rgba(255,255,255,0.5)" stroke-width="3"></path>
+                                <path d="M10 36 H26" stroke="rgba(255,255,255,0.35)" stroke-width="3"></path>
+                                <path d="M38 30 H50 L57 18 L64 42 L70 30 H90" stroke="#fff2eb" stroke-width="4"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.25em] text-white/70">Your Wellness Counter</p>
+                            <h1 class="text-3xl font-extrabold tracking-tight">SYNQ</h1>
+                        </div>
+                    </div>
+                    <button class="rounded-full bg-white/12 px-3 py-1.5 text-xs font-bold tracking-wide text-white/90">Privacy-first</button>
+                </div>
 
-    <!-- Design Controls -->
-    <div class="no-print fixed top-4 right-4 flex gap-2 bg-white/80 p-2 rounded-full shadow-lg z-50 items-center">
-        <button onclick="changeColor('#fdfbf7')" class="w-6 h-6 rounded-full border border-gray-300" style="background: #fdfbf7;"></button>
-        <button onclick="changeColor('#f0f4f1')" class="w-6 h-6 rounded-full border border-gray-300" style="background: #f0f4f1;"></button>
-        <button onclick="changeColor('#eef2f7')" class="w-6 h-6 rounded-full border border-gray-300" style="background: #eef2f7;"></button>
-        <button onclick="window.print()" class="ml-2 text-xs font-bold uppercase tracking-widest">Download PDF</button>
-    </div>
+                <div class="mt-6 grid grid-cols-2 gap-3 text-sm">
+                    <div class="rounded-2xl bg-white/12 p-3">
+                        <p class="text-white/70">Today’s rhythm</p>
+                        <p class="mt-1 text-xl font-bold">Balanced + Intentional</p>
+                    </div>
+                    <div class="rounded-2xl bg-white/12 p-3">
+                        <p class="text-white/70">Consistency streak</p>
+                        <p class="mt-1 text-xl font-bold">6 days</p>
+                    </div>
+                </div>
 
-    <div class="max-w-2xl mx-auto space-y-12 pb-32">
-        <!-- Header Section -->
-        <header class="text-center space-y-4">
-            <p class="text-xs uppercase tracking-[0.2em] font-semibold text-gray-500">Your Wellness Counter (YWC) 2026</p>
-            <h1 class="text-4xl md:text-5xl">The Inner Audit</h1>
-            <p class="italic text-gray-600">Phase 1: Under Pressure — Understanding the Inner Load</p>
+                <div class="mt-5 rounded-2xl bg-white/10 p-4">
+                    <div class="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-white/70">
+                        <span>Reflection + Rhythm</span>
+                        <span>Phase 1 MVP</span>
+                    </div>
+                    <div class="pulse-line mt-2">
+                        <svg viewBox="0 0 320 70" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="pulseGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#b9fff4"></stop>
+                                    <stop offset="65%" stop-color="#ffffff"></stop>
+                                    <stop offset="100%" stop-color="#ffb59e"></stop>
+                                </linearGradient>
+                            </defs>
+                            <path d="M0 34 H42 L58 34 L78 20 L94 52 L110 30 H150 L168 34 L194 34 L216 16 L234 56 L248 34 H320" stroke="url(#pulseGradient)" stroke-width="5"></path>
+                        </svg>
+                    </div>
+                    <p class="text-sm text-white/85">A calm space for journaling, mood check-ins, habits, and a synced wellness overview.</p>
+                </div>
+            </div>
         </header>
 
-        <!-- Mission & Disclaimer Card -->
-        <section class="card p-6 border border-black/5 text-sm space-y-4">
-            <div>
-                <h3 class="font-bold text-lg mb-1">Our Mission</h3>
-                <p>YWC is a student-led wellness platform bridging psychology and daily living. Today is about moving from self-blame to self-observation.</p>
+        <section class="mb-6 grid grid-cols-3 gap-3 text-center text-sm">
+            <div class="glass-card rounded-3xl p-4">
+                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Entries</p>
+                <p class="mt-2 text-2xl font-extrabold text-slate-800">24</p>
             </div>
-            <div class="bg-black/5 p-4 rounded text-xs leading-relaxed italic">
-                <strong>Safety Disclaimer:</strong> This audit is for self-reflection and is not a clinical substitute for therapy. This is a private workbook for your eyes only. If you feel overwhelmed, please stop and prioritize your safety.
+            <div class="glass-card rounded-3xl p-4">
+                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Mood avg</p>
+                <p class="mt-2 text-2xl font-extrabold text-slate-800">7.8</p>
+            </div>
+            <div class="glass-card rounded-3xl p-4">
+                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Habits</p>
+                <p class="mt-2 text-2xl font-extrabold text-slate-800">5/6</p>
             </div>
         </section>
 
-        <!-- Audit Questions -->
-        <div class="space-y-16 py-8">
-            
-            <!-- Section 1 -->
-            <section id="section-1">
-                <h2 class="text-2xl mb-6">1. The Mirror <span class="text-sm font-light italic block text-gray-500">Current Capacity</span></h2>
-                <label class="block text-sm font-semibold mb-2">The Mask</label>
-                <p class="text-sm text-gray-600 mb-4">If I stopped "performing" success or stability for 24 hours, what is the very first thing my body or mind would demand?</p>
-                <input type="text" id="input-mask" class="audit-input" placeholder="Write your thoughts here...">
-
-                <label class="block text-sm font-semibold mb-2">The Invisible List</label>
-                <p class="text-sm text-gray-600 mb-4">What are three things currently on my "plate" that I didn't actually choose for myself, but I feel obligated to carry?</p>
-                <input type="text" id="input-plate-1" class="audit-input" placeholder="1.">
-                <input type="text" id="input-plate-2" class="audit-input" placeholder="2.">
-                <input type="text" id="input-plate-3" class="audit-input" placeholder="3.">
-            </section>
-
-            <!-- AI Insight Trigger -->
-            <div class="flex justify-center no-print">
-                <button id="btn-analyze" onclick="getReflectiveInsight()" class="sparkle-btn">
-                    <span>✨ Get Reflective Insight</span>
-                </button>
-            </div>
-
-            <!-- AI Result Display -->
-            <div id="ai-insight-result" class="hidden card p-6 border border-black/10 text-sm italic leading-relaxed text-gray-700 animate-pulse">
-                <!-- Content injected here -->
-            </div>
-
-            <!-- Section 2 -->
-            <section>
-                <h2 class="text-2xl mb-6">2. The Body <span class="text-sm font-light italic block text-gray-500">Locating the Stress</span></h2>
-                <label class="block text-sm font-semibold mb-2">The Physical Alarm</label>
-                <p class="text-sm text-gray-600 mb-4">When I check my bank balance or look at my to-do list, where in my body do I feel it first?</p>
-                <input type="text" id="input-body" class="audit-input" placeholder="e.g., tight jaw, heavy chest...">
-
-                <label class="block text-sm font-semibold mb-2">The Low-Battery Signal</label>
-                <p class="text-sm text-gray-600 mb-4">What is my body’s specific "warning light" that tells me I have moved from "working hard" to "operating on empty"?</p>
-                <input type="text" id="input-warning" class="audit-input">
-            </section>
-
-            <!-- Section 3 -->
-            <section>
-                <h2 class="text-2xl mb-6">3. The Roots <span class="text-sm font-light italic block text-gray-500">The Survival Story</span></h2>
-                <label class="block text-sm font-semibold mb-2">The Family Script</label>
-                <p class="text-sm text-gray-600 mb-4">What is one unspoken rule about "duty" or "working hard" that I learned from my family?</p>
-                <input type="text" id="input-family" class="audit-input">
-
-                <label class="block text-sm font-semibold mb-2">The Survival Mode</label>
-                <p class="text-sm text-gray-600 mb-4">When the pressure in Nigeria gets too loud, what is my default survival mode?</p>
-                <div class="flex flex-wrap gap-4 mt-2">
-                    <label class="flex items-center space-x-2"><input type="radio" name="survival" value="avoid"> <span class="text-sm">Avoidance</span></label>
-                    <label class="flex items-center space-x-2"><input type="radio" name="survival" value="overperform"> <span class="text-sm">Over-performance</span></label>
-                    <label class="flex items-center space-x-2"><input type="radio" name="survival" value="distract"> <span class="text-sm">Instant Distraction</span></label>
+        <section id="view-journal" class="section-view active slide-up space-y-4">
+            <div class="glass-card rounded-[28px] p-5">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.2em] text-slate-500">Journal</p>
+                        <h2 class="text-2xl font-extrabold">Today’s entry</h2>
+                    </div>
+                    <span class="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-700">Prompt-led</span>
                 </div>
-            </section>
 
-            <!-- Section 4 -->
-            <section>
-                <h2 class="text-2xl mb-6">4. The Internal Cost <span class="text-sm font-light italic block text-gray-500">The Decision Fog</span></h2>
-                <label class="block text-sm font-semibold mb-2">The Identity Tax</label>
-                <p class="text-sm text-gray-600 mb-4">How much of my stress is caused by trying to maintain an identity I can't actually afford—financially or emotionally?</p>
-                <input type="text" id="input-identity" class="audit-input">
+                <div class="mt-4 rounded-[24px] bg-[#fcfffe] p-4 journal-line">
+                    <label class="text-sm font-bold text-slate-700" for="journalPrompt">Daily prompt</label>
+                    <p id="journalPrompt" class="mt-2 text-sm text-slate-500">What helped you feel grounded today, and what felt slightly out of sync?</p>
+                    <textarea id="journalEntry" rows="6" class="mt-4 w-full resize-none border-0 bg-transparent text-[15px] leading-10 text-slate-700 outline-none" placeholder="I felt most like myself when..."></textarea>
+                </div>
 
-                <label class="block text-sm font-semibold mb-2">The Fog Check</label>
-                <p class="text-sm text-gray-600 mb-4">What is one choice I made recently that I know was driven by "exhaustion" rather than logic?</p>
-                <input type="text" id="input-fog" class="audit-input">
-            </section>
+                <div class="mt-4 flex items-center justify-between gap-3">
+                    <div class="text-sm text-slate-500">
+                        <span class="font-bold text-slate-700">Autosaved locally</span>
+                        <span> · encrypted sync optional</span>
+                    </div>
+                    <button id="saveJournalBtn" class="rounded-full bg-slate-900 px-4 py-2 text-sm font-bold text-white">Save entry</button>
+                </div>
+            </div>
 
-            <!-- AI Financial Wisdom Trigger -->
-            <div class="no-print space-y-4">
-                <div class="flex justify-center">
-                    <button id="btn-wisdom" onclick="getFinancialNugget()" class="sparkle-btn">
-                        <span>✨ Get Financial Wisdom Nugget</span>
+            <div class="glass-card rounded-[28px] p-5">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-extrabold">Recent reflections</h3>
+                    <span class="text-xs uppercase tracking-[0.18em] text-slate-400">Sample data</span>
+                </div>
+                <div id="journalList" class="mt-4 space-y-3"></div>
+            </div>
+        </section>
+
+        <section id="view-mood" class="section-view space-y-4">
+            <div class="glass-card rounded-[28px] p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.2em] text-slate-500">Mood / Pulse</p>
+                        <h2 class="text-2xl font-extrabold">How are you arriving?</h2>
+                    </div>
+                    <span id="selectedMoodLabel" class="rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-500">Steady</span>
+                </div>
+
+                <div class="mt-4 grid grid-cols-2 gap-3">
+                    <button class="mood-chip active rounded-3xl border border-slate-200 p-4 text-left transition-all" data-mood="Steady" data-score="7">
+                        <div class="text-2xl">🙂</div>
+                        <p class="mt-2 font-bold">Steady</p>
+                        <p class="text-sm text-slate-500">Calm and present.</p>
+                    </button>
+                    <button class="mood-chip rounded-3xl border border-slate-200 p-4 text-left transition-all" data-mood="Energized" data-score="9">
+                        <div class="text-2xl">⚡</div>
+                        <p class="mt-2 font-bold">Energized</p>
+                        <p class="text-sm text-slate-500">Focused, uplifted, flowing.</p>
+                    </button>
+                    <button class="mood-chip rounded-3xl border border-slate-200 p-4 text-left transition-all" data-mood="Tender" data-score="5">
+                        <div class="text-2xl">🥹</div>
+                        <p class="mt-2 font-bold">Tender</p>
+                        <p class="text-sm text-slate-500">Soft, emotional, reflective.</p>
+                    </button>
+                    <button class="mood-chip rounded-3xl border border-slate-200 p-4 text-left transition-all" data-mood="Overloaded" data-score="3">
+                        <div class="text-2xl">😵‍💫</div>
+                        <p class="mt-2 font-bold">Overloaded</p>
+                        <p class="text-sm text-slate-500">Busy mind, low reserve.</p>
                     </button>
                 </div>
-                <div id="ai-wisdom-result" class="hidden card p-6 border border-black/10 text-sm leading-relaxed text-gray-700 bg-black/5">
-                    <!-- Content injected here -->
-                </div>
-            </div>
 
-            <!-- Section 5 -->
-            <section class="card p-8 border-2 border-black/10">
-                <h2 class="text-2xl mb-6 underline decoration-1 underline-offset-8">5. The Reset</h2>
-                <label class="block text-sm font-semibold mb-2">The Small Boundary</label>
-                <p class="text-sm text-gray-600 mb-4">One "No" I can say this week to protect 10% of my capacity:</p>
-                <input type="text" id="input-boundary" class="audit-input">
-
-                <label class="block text-sm font-semibold mb-2">The Anchor</label>
-                <p class="text-sm text-gray-600 mb-4">Regulation technique to try when the load gets too heavy:</p>
-                <div class="flex gap-2 items-start">
-                    <input type="text" id="input-anchor" class="audit-input flex-grow" placeholder="e.g., Box breathing, grounding...">
-                    <button onclick="speakAnchor()" id="btn-tts" class="p-2 text-gray-500 hover:text-black no-print" title="Speak this anchor">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                <div class="mt-5 rounded-[24px] bg-slate-50 p-4">
+                    <div class="flex items-center justify-between text-sm text-slate-500">
+                        <span>Pulse intensity</span>
+                        <span id="pulseScore">7/10</span>
+                    </div>
+                    <div class="pulse-line mt-2">
+                        <svg viewBox="0 0 320 70" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="moodGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#21a8a1"></stop>
+                                    <stop offset="75%" stop-color="#ff8c6a"></stop>
+                                </linearGradient>
+                            </defs>
+                            <path id="dynamicPulse" d="M0 36 H60 L88 36 L112 20 L134 52 L154 28 H202 L226 36 L252 36 L282 24 L300 42 L320 34" stroke="url(#moodGradient)" stroke-width="5"></path>
                         </svg>
-                    </button>
+                    </div>
+                    <p class="mt-3 text-sm text-slate-600">Selected mood syncs into the dashboard trend and today’s journal context.</p>
                 </div>
-            </section>
-        </div>
-
-        <!-- Footer / Socials -->
-        <footer class="pt-12 border-t border-black/10 space-y-8 pb-20">
-            <div class="space-y-4">
-                <h3 class="text-xl">What Comes Next?</h3>
-                <p class="text-sm text-gray-600 leading-relaxed">
-                    By naming your "Inner Load" today, you have laid the foundation for <strong>Phase 2: Financial Patterns.</strong> 
-                    In February, we will explore how these survival modes show up in your spending and saving. 
-                    Keep these answers safe—they are the data for your future financial clarity.
-                </p>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <a href="#" class="text-xs font-bold uppercase tracking-widest hover:underline">X / Twitter</a>
-                <a href="#" class="text-xs font-bold uppercase tracking-widest hover:underline">Instagram</a>
-                <a href="#" class="text-xs font-bold uppercase tracking-widest hover:underline">Substack</a>
-                <a href="#" class="text-xs font-bold uppercase tracking-widest hover:underline">LinkedIn</a>
+            <div class="glass-card rounded-[28px] p-5">
+                <h3 class="text-lg font-extrabold">Weekly rhythm</h3>
+                <div class="mt-4 grid grid-cols-7 gap-2 text-center text-xs">
+                    <div><div class="rounded-2xl bg-teal-50 py-4 font-bold text-teal-700">7.1</div><p class="mt-2 text-slate-400">Mon</p></div>
+                    <div><div class="rounded-2xl bg-teal-50 py-4 font-bold text-teal-700">7.4</div><p class="mt-2 text-slate-400">Tue</p></div>
+                    <div><div class="rounded-2xl bg-orange-50 py-4 font-bold text-orange-500">6.8</div><p class="mt-2 text-slate-400">Wed</p></div>
+                    <div><div class="rounded-2xl bg-teal-50 py-4 font-bold text-teal-700">8.0</div><p class="mt-2 text-slate-400">Thu</p></div>
+                    <div><div class="rounded-2xl bg-teal-50 py-4 font-bold text-teal-700">7.5</div><p class="mt-2 text-slate-400">Fri</p></div>
+                    <div><div class="rounded-2xl bg-orange-50 py-4 font-bold text-orange-500">6.9</div><p class="mt-2 text-slate-400">Sat</p></div>
+                    <div><div class="rounded-2xl bg-slate-900 py-4 font-bold text-white">7.8</div><p class="mt-2 text-slate-400">Sun</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-habits" class="section-view space-y-4">
+            <div class="glass-card rounded-[28px] p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.2em] text-slate-500">Habits / Routines</p>
+                        <h2 class="text-2xl font-extrabold">Small actions, synced</h2>
+                    </div>
+                    <span id="habitCountBadge" class="rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-700">5 of 6 complete</span>
+                </div>
+
+                <div id="habitList" class="mt-5 space-y-3"></div>
+
+                <div class="mt-5 rounded-[24px] bg-slate-50 p-4">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="font-bold text-slate-700">Routine progress</span>
+                        <span id="habitPercent" class="text-slate-500">83%</span>
+                    </div>
+                    <div class="progress-bar mt-3 h-3 rounded-full bg-slate-200"><span id="habitProgressFill" style="width: 83%"></span></div>
+                    <p class="mt-3 text-sm text-slate-500">Optional reminders can nudge hydration, mindful movement, and evening reflection.</p>
+                </div>
             </div>
 
-            <p class="text-center text-[10px] text-gray-400 font-bold uppercase tracking-[0.3em]">
-                &copy; 2026 Chidiebere Onwubiko • YWC
-            </p>
-        </footer>
-    </div>
+            <div class="glass-card rounded-[28px] p-5">
+                <h3 class="text-lg font-extrabold">Reminder preferences</h3>
+                <div class="mt-4 grid gap-3">
+                    <div class="flex items-center justify-between rounded-3xl bg-slate-50 p-4 text-sm">
+                        <div>
+                            <p class="font-bold text-slate-700">Morning reset</p>
+                            <p class="text-slate-500">Gentle prompt at 8:00 AM</p>
+                        </div>
+                        <div class="rounded-full bg-teal-100 px-3 py-1 font-bold text-teal-700">On</div>
+                    </div>
+                    <div class="flex items-center justify-between rounded-3xl bg-slate-50 p-4 text-sm">
+                        <div>
+                            <p class="font-bold text-slate-700">Evening journal</p>
+                            <p class="text-slate-500">Reflection reminder at 8:30 PM</p>
+                        </div>
+                        <div class="rounded-full bg-orange-100 px-3 py-1 font-bold text-orange-500">Soft</div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <!-- Message Box Overlay -->
-    <div id="msg-box" class="hidden fixed bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 bg-black text-white rounded-lg shadow-2xl text-sm z-[100] transition-all"></div>
+        <section id="view-dashboard" class="section-view space-y-4">
+            <div class="glass-card rounded-[28px] p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.2em] text-slate-500">Dashboard</p>
+                        <h2 class="text-2xl font-extrabold">Your synced overview</h2>
+                    </div>
+                    <span class="rounded-full bg-slate-900 px-3 py-1 text-xs font-bold text-white">Live sample</span>
+                </div>
+
+                <div class="mt-4 grid grid-cols-2 gap-3">
+                    <div class="rounded-3xl bg-teal-50 p-4">
+                        <p class="text-sm text-teal-700">Journal consistency</p>
+                        <p class="mt-1 text-3xl font-extrabold text-teal-900">86%</p>
+                        <p class="mt-2 text-xs text-teal-700/80">6 entries this week</p>
+                    </div>
+                    <div class="rounded-3xl bg-orange-50 p-4">
+                        <p class="text-sm text-orange-500">Pulse trend</p>
+                        <p id="dashboardMood" class="mt-1 text-3xl font-extrabold text-orange-500">Steady</p>
+                        <p class="mt-2 text-xs text-orange-500/80">Current score 7/10</p>
+                    </div>
+                </div>
+
+                <div class="mt-4 rounded-[24px] bg-slate-50 p-4">
+                    <div class="flex items-center justify-between">
+                        <p class="font-bold text-slate-700">Pulse visualization</p>
+                        <span class="text-xs uppercase tracking-[0.18em] text-slate-400">Mood + habits</span>
+                    </div>
+                    <div class="pulse-line mt-3">
+                        <svg viewBox="0 0 320 78" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="dashboardGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#21a8a1"></stop>
+                                    <stop offset="100%" stop-color="#ff8c6a"></stop>
+                                </linearGradient>
+                            </defs>
+                            <path id="dashboardPulse" d="M0 38 H38 L54 38 L72 22 L90 56 L110 30 H162 L180 36 L208 36 L232 14 L252 56 L272 34 H320" stroke="url(#dashboardGradient)" stroke-width="5" fill="none"></path>
+                        </svg>
+                    </div>
+                    <div class="mt-4 grid grid-cols-3 gap-3 text-sm">
+                        <div class="rounded-2xl bg-white p-3 text-center">
+                            <p class="text-slate-400">Mood avg</p>
+                            <p class="mt-1 font-extrabold text-slate-800">7.8</p>
+                        </div>
+                        <div class="rounded-2xl bg-white p-3 text-center">
+                            <p class="text-slate-400">Habits hit</p>
+                            <p id="dashboardHabitRate" class="mt-1 font-extrabold text-slate-800">83%</p>
+                        </div>
+                        <div class="rounded-2xl bg-white p-3 text-center">
+                            <p class="text-slate-400">Prompt use</p>
+                            <p class="mt-1 font-extrabold text-slate-800">4/5</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-[28px] p-5">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-extrabold">What phase 2 can learn</h3>
+                    <span class="text-xs uppercase tracking-[0.18em] text-slate-400">Feedback loop</span>
+                </div>
+                <div class="mt-4 space-y-3 text-sm text-slate-600">
+                    <div class="rounded-3xl bg-slate-50 p-4">Patterns suggest you feel more balanced on days with both journaling and hydration check-ins.</div>
+                    <div class="rounded-3xl bg-slate-50 p-4">Users could rate prompt helpfulness to refine future YWC content integration.</div>
+                    <div class="rounded-3xl bg-slate-50 p-4">A post-entry “Was this useful?” control supports iteration before analytics and gamification expand.</div>
+                </div>
+                <button id="feedbackBtn" class="mt-4 w-full rounded-full bg-slate-900 px-4 py-3 text-sm font-bold text-white">Share prototype feedback</button>
+            </div>
+        </section>
+
+        <div id="toast" class="pointer-events-none fixed left-1/2 top-6 z-50 hidden -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-sm font-bold text-white shadow-2xl"></div>
+
+        <nav class="glass-card fixed bottom-4 left-1/2 z-40 flex w-[min(430px,calc(100%-24px))] -translate-x-1/2 items-center justify-between rounded-[28px] p-2 shadow-2xl shadow-slate-900/10">
+            <button class="nav-pill active flex-1 rounded-[22px] px-3 py-3 text-center text-xs font-bold text-slate-500 transition-all" data-view="journal">Journal</button>
+            <button class="nav-pill flex-1 rounded-[22px] px-3 py-3 text-center text-xs font-bold text-slate-500 transition-all" data-view="mood">Mood</button>
+            <button class="nav-pill flex-1 rounded-[22px] px-3 py-3 text-center text-xs font-bold text-slate-500 transition-all" data-view="habits">Habits</button>
+            <button class="nav-pill flex-1 rounded-[22px] px-3 py-3 text-center text-xs font-bold text-slate-500 transition-all" data-view="dashboard">Dashboard</button>
+        </nav>
+    </main>
 
     <script>
-        const apiKey = ""; // Runtime will provide this
-
-        function changeColor(color) {
-            document.documentElement.style.setProperty('--bg-color', color);
-        }
-
-        function showMessage(msg, duration = 3000) {
-            const box = document.getElementById('msg-box');
-            box.textContent = msg;
-            box.classList.remove('hidden', 'opacity-0');
-            box.classList.add('opacity-100');
-            setTimeout(() => {
-                box.classList.add('opacity-0');
-                setTimeout(() => box.classList.add('hidden'), 500);
-            }, duration);
-        }
-
-        async function geminiCall(prompt, systemInstruction = "", useSearch = false) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { parts: [{ text: systemInstruction }] }
-            };
-            if (useSearch) {
-                payload.tools = [{ "google_search": {} }];
+        const journalEntries = [
+            {
+                date: 'Today',
+                title: 'Noticing what feels supportive',
+                text: 'I felt most settled after my walk and short breathing reset. My mind got noisy in the afternoon, but naming it helped.'
+            },
+            {
+                date: 'Yesterday',
+                title: 'Finding a softer pace',
+                text: 'I said no to one extra task and had enough energy to complete my evening journal.'
+            },
+            {
+                date: 'Friday',
+                title: 'A better rhythm',
+                text: 'Hydration and a quick stretch made my afternoon feel lighter and more focused.'
             }
+        ];
 
-            let lastErr;
-            for (let i = 0; i < 5; i++) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (!response.ok) throw new Error('API request failed');
-                    const data = await response.json();
-                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
-                } catch (err) {
-                    lastErr = err;
-                    await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
-                }
-            }
-            throw lastErr;
+        const habits = [
+            { name: 'Morning check-in', detail: '2 minutes of mindful arrival', completed: true },
+            { name: 'Hydration', detail: '6 of 8 glasses logged', completed: true },
+            { name: 'Movement', detail: '15-minute walk', completed: true },
+            { name: 'Mood log', detail: 'Pulse selected after lunch', completed: true },
+            { name: 'Evening journal', detail: 'Prompt response saved', completed: true },
+            { name: 'Screen wind-down', detail: '30 minutes before sleep', completed: false }
+        ];
+
+        const pulsePaths = {
+            3: 'M0 38 H54 L78 38 L98 52 L118 18 L140 48 H192 L218 38 L246 38 L274 52 L300 28 L320 34',
+            5: 'M0 38 H56 L80 38 L100 28 L120 48 L142 30 H194 L220 38 L246 38 L274 28 L300 44 L320 34',
+            7: 'M0 36 H60 L88 36 L112 20 L134 52 L154 28 H202 L226 36 L252 36 L282 24 L300 42 L320 34',
+            9: 'M0 34 H50 L74 34 L98 14 L122 58 L144 22 H196 L224 34 L248 34 L278 16 L300 50 L320 30'
+        };
+
+        const dashboardPulsePaths = {
+            3: 'M0 40 H40 L60 40 L78 54 L96 18 L118 48 H168 L192 40 L218 40 L240 56 L264 30 L320 36',
+            5: 'M0 40 H38 L58 40 L78 28 L98 52 L118 28 H168 L190 38 L214 38 L240 26 L264 48 L320 34',
+            7: 'M0 38 H38 L54 38 L72 22 L90 56 L110 30 H162 L180 36 L208 36 L232 14 L252 56 L272 34 H320',
+            9: 'M0 34 H34 L52 34 L72 12 L92 60 L114 20 H164 L188 34 L214 34 L238 12 L258 58 L282 26 H320'
+        };
+
+        const journalList = document.getElementById('journalList');
+        const habitList = document.getElementById('habitList');
+        const navButtons = document.querySelectorAll('.nav-pill');
+        const views = document.querySelectorAll('.section-view');
+        const toast = document.getElementById('toast');
+        const journalEntryField = document.getElementById('journalEntry');
+        const saveJournalBtn = document.getElementById('saveJournalBtn');
+        const moodChips = document.querySelectorAll('.mood-chip');
+        const selectedMoodLabel = document.getElementById('selectedMoodLabel');
+        const pulseScore = document.getElementById('pulseScore');
+        const dashboardMood = document.getElementById('dashboardMood');
+        const dynamicPulse = document.getElementById('dynamicPulse');
+        const dashboardPulse = document.getElementById('dashboardPulse');
+        const feedbackBtn = document.getElementById('feedbackBtn');
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.remove('hidden');
+            clearTimeout(showToast.timeout);
+            showToast.timeout = setTimeout(() => toast.classList.add('hidden'), 2400);
         }
 
-        async function getReflectiveInsight() {
-            const mask = document.getElementById('input-mask').value;
-            const p1 = document.getElementById('input-plate-1').value;
-            const p2 = document.getElementById('input-plate-2').value;
-            const p3 = document.getElementById('input-plate-3').value;
+        function renderJournalEntries() {
+            journalList.innerHTML = journalEntries.map((entry) => `
+                <article class="rounded-3xl bg-slate-50 p-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <h4 class="font-extrabold text-slate-800">${entry.title}</h4>
+                        <span class="text-xs uppercase tracking-[0.18em] text-slate-400">${entry.date}</span>
+                    </div>
+                    <p class="mt-2 text-sm leading-6 text-slate-600">${entry.text}</p>
+                </article>
+            `).join('');
+        }
 
-            if (!mask && !p1) {
-                showMessage("Please fill in some reflections first.");
+        function renderHabits() {
+            habitList.innerHTML = habits.map((habit, index) => `
+                <button class="habit-row flex w-full items-center justify-between rounded-3xl border border-slate-200 bg-white p-4 text-left transition-all" data-index="${index}">
+                    <div>
+                        <p class="font-extrabold text-slate-800">${habit.name}</p>
+                        <p class="text-sm text-slate-500">${habit.detail}</p>
+                    </div>
+                    <div class="habit-check ${habit.completed ? 'checked' : ''} flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 text-lg font-bold">${habit.completed ? '✓' : '+'}</div>
+                </button>
+            `).join('');
+
+            document.querySelectorAll('.habit-row').forEach((button) => {
+                button.addEventListener('click', () => toggleHabit(Number(button.dataset.index)));
+            });
+
+            updateHabitMetrics();
+        }
+
+        function updateHabitMetrics() {
+            const completed = habits.filter((habit) => habit.completed).length;
+            const total = habits.length;
+            const percent = Math.round((completed / total) * 100);
+            document.getElementById('habitCountBadge').textContent = `${completed} of ${total} complete`;
+            document.getElementById('habitPercent').textContent = `${percent}%`;
+            document.getElementById('habitProgressFill').style.width = `${percent}%`;
+            document.getElementById('dashboardHabitRate').textContent = `${percent}%`;
+        }
+
+        function toggleHabit(index) {
+            habits[index].completed = !habits[index].completed;
+            renderHabits();
+            showToast(`${habits[index].name} ${habits[index].completed ? 'completed' : 'updated'} ✨`);
+        }
+
+        function switchView(viewName) {
+            navButtons.forEach((button) => button.classList.toggle('active', button.dataset.view === viewName));
+            views.forEach((view) => {
+                const isActive = view.id === `view-${viewName}`;
+                view.classList.toggle('active', isActive);
+                view.classList.toggle('slide-up', isActive);
+            });
+        }
+
+        function updateMood(score, label) {
+            selectedMoodLabel.textContent = label;
+            pulseScore.textContent = `${score}/10`;
+            dashboardMood.textContent = label;
+            dynamicPulse.setAttribute('d', pulsePaths[score]);
+            dashboardPulse.setAttribute('d', dashboardPulsePaths[score]);
+        }
+
+        saveJournalBtn.addEventListener('click', () => {
+            const value = journalEntryField.value.trim();
+            if (!value) {
+                showToast('Write a quick reflection first.');
                 return;
             }
 
-            const btn = document.getElementById('btn-analyze');
-            const resultBox = document.getElementById('ai-insight-result');
-            
-            btn.disabled = true;
-            btn.innerHTML = `<div class="spinner"></div> <span>Analyzing...</span>`;
-            resultBox.classList.remove('hidden');
-            resultBox.textContent = "✨ Tuning into your energy...";
+            journalEntries.unshift({
+                date: 'Now',
+                title: 'Fresh reflection',
+                text: value
+            });
+            journalEntryField.value = '';
+            renderJournalEntries();
+            showToast('Journal entry saved locally.');
+        });
 
-            try {
-                const systemPrompt = "You are a gentle, supportive clinical psychologist helping a young Nigerian student or professional. Your goal is to provide validation and a soft reflection on their 'Inner Load'. Keep it under 100 words. Be empathetic and non-judgmental.";
-                const userPrompt = `Based on these reflections: 
-                - Mask: ${mask}
-                - Invisible load on plate: ${p1}, ${p2}, ${p3}
-                Provide a small reflective nugget of insight. Help me decouple my worth from this productivity.`;
-                
-                const insight = await geminiCall(userPrompt, systemPrompt);
-                resultBox.classList.remove('animate-pulse');
-                resultBox.innerHTML = `<strong>✨ AI Reflection:</strong><br>${insight}`;
-            } catch (err) {
-                showMessage("Unable to connect to AI. Please try again later.");
-                resultBox.classList.add('hidden');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<span>✨ Get Reflective Insight</span>`;
-            }
-        }
+        navButtons.forEach((button) => {
+            button.addEventListener('click', () => switchView(button.dataset.view));
+        });
 
-        async function getFinancialNugget() {
-            const btn = document.getElementById('btn-wisdom');
-            const resultBox = document.getElementById('ai-wisdom-result');
+        moodChips.forEach((chip) => {
+            chip.addEventListener('click', () => {
+                moodChips.forEach((item) => item.classList.remove('active'));
+                chip.classList.add('active');
+                updateMood(Number(chip.dataset.score), chip.dataset.mood);
+                showToast(`Mood synced as ${chip.dataset.mood}.`);
+            });
+        });
 
-            btn.disabled = true;
-            btn.innerHTML = `<div class="spinner"></div> <span>Searching context...</span>`;
-            resultBox.classList.remove('hidden');
-            resultBox.textContent = "✨ Researching current Nigerian economic context and tax reforms...";
+        feedbackBtn.addEventListener('click', () => {
+            showToast('Feedback captured for phase 2 iteration.');
+        });
 
-            try {
-                const systemPrompt = "You are a financial wellness expert knowledgeable about Nigeria's current economic climate and recent tax reforms (e.g., Finance Act 2024, VAT changes). Your advice should be practical, empathetic, and jargon-free for a young professional.";
-                const userPrompt = "Provide a short nugget of advice regarding the current Nigerian economic context or a recent tax reform that might affect a young person. Focus on helping them feel empowered rather than stressed.";
-                
-                const nugget = await geminiCall(userPrompt, systemPrompt, true);
-                resultBox.innerHTML = `<strong>✨ Financial Context:</strong><br>${nugget}`;
-            } catch (err) {
-                showMessage("Unable to fetch wisdom at this time.");
-                resultBox.classList.add('hidden');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<span>✨ Get Financial Wisdom Nugget</span>`;
-            }
-        }
-
-        async function speakAnchor() {
-            const anchor = document.getElementById('input-anchor').value;
-            if (!anchor) {
-                showMessage("Please write your Anchor technique first.");
-                return;
-            }
-
-            const btn = document.getElementById('btn-tts');
-            const originalColor = btn.style.color;
-            btn.style.color = "blue";
-            showMessage("✨ Preparing voice guide...");
-
-            try {
-                const ttsUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
-                const payload = {
-                    contents: [{ parts: [{ text: `Say calmly and supportively: "Remember your anchor: ${anchor}. Breathe into this space. You are more than what you carry."` }] }],
-                    generationConfig: { 
-                        responseModalities: ["AUDIO"], 
-                        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Aoede" } } } 
-                    }
-                };
-
-                const response = await fetch(ttsUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) throw new Error('TTS failed');
-                const result = await response.json();
-                const audioData = result.candidates[0].content.parts[0].inlineData.data;
-                const sampleRate = parseInt(result.candidates[0].content.parts[0].inlineData.mimeType.match(/rate=(\d+)/)?.[1] || 24000);
-                
-                playPCM16(audioData, sampleRate);
-            } catch (err) {
-                showMessage("Voice service unavailable.");
-            } finally {
-                btn.style.color = originalColor;
-            }
-        }
-
-        // Helper to convert PCM16 to WAV and play
-        function playPCM16(base64Data, sampleRate) {
-            const binaryString = atob(base64Data);
-            const bytes = new Uint8Array(binaryString.length);
-            for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-            
-            const wavHeader = new ArrayBuffer(44);
-            const view = new DataView(wavHeader);
-            
-            const writeString = (view, offset, string) => {
-                for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
-            };
-
-            writeString(view, 0, 'RIFF');
-            view.setUint32(4, 36 + bytes.length, true);
-            writeString(view, 8, 'WAVE');
-            writeString(view, 12, 'fmt ');
-            view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true); // PCM
-            view.setUint16(22, 1, true); // Mono
-            view.setUint32(24, sampleRate, true);
-            view.setUint32(28, sampleRate * 2, true);
-            view.setUint16(32, 2, true);
-            view.setUint16(34, 16, true);
-            writeString(view, 36, 'data');
-            view.setUint32(40, bytes.length, true);
-
-            const blob = new Blob([wavHeader, bytes], { type: 'audio/wav' });
-            const url = URL.createObjectURL(blob);
-            const audio = new Audio(url);
-            audio.play();
-        }
+        renderJournalEntries();
+        renderHabits();
+        updateMood(7, 'Steady');
     </script>
 </body>
 </html>
